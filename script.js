@@ -54,7 +54,7 @@ class Cycling extends Workout {
       this._setDescription();
    }
    calcSpeed() {
-      this.speed = this.distance / this.duration;
+      this.speed = this.duration / (this.distance / 60);
       return this.speed;
    }
 }
@@ -67,6 +67,7 @@ class App {
 
    constructor() {
       this._getPosition();
+      this._getLocalStorage();
       form.addEventListener('submit', this._newWorkout.bind(this));
       inputType.addEventListener('change', this._toggleElevationField);
       containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
@@ -93,6 +94,10 @@ class App {
       }).addTo(this.#map);
 
       this.#map.on('click', this._showForm.bind(this));
+
+      this.#workouts.forEach((workout) => {
+         this._renderWorkoutMarker(workout);
+      });
    }
 
    _showForm(mapE) {
@@ -163,6 +168,8 @@ class App {
       this._renderWorkout(workout);
 
       this._hideForm();
+
+      this._setLocalStorage();
    }
 
    _renderWorkoutMarker(workout) {
@@ -249,6 +256,27 @@ class App {
          },
       });
    }
+
+   _setLocalStorage() {
+      localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+   }
+
+   _getLocalStorage() {
+      const data = JSON.parse(localStorage.getItem('workouts'));
+
+      if (!data) return;
+
+      this.#workouts = data;
+
+      this.#workouts.forEach((workout) => {
+         this._renderWorkout(workout);
+      });
+   }
+
+   // reset() {
+   //    localStorage.removeItem('workouts');
+   //    location.reload();
+   // }
 }
 
 const app = new App();
